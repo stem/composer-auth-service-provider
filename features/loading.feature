@@ -53,7 +53,7 @@ Scénario: Il ne manque aucun paramètres mais l'URL n'est pas bonne
 
 
 Scénario: Il ne manque aucun paramètres et l'URL est bonne
-  Quand j'injecte "file://__DIR__/../../tmp/keys/" dans "auth.authenticator_url"
+  Quand j'injecte "file://__DIR__/tmp/key/" dans "auth.authenticator_url"
   Et j'injecte "" dans "auth.force_guest"
   Et j'injecte "" dans "auth.cookie_expiration"
   Et j'injecte "" dans "auth.public_key.tmp_path"
