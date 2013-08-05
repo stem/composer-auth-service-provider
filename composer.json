@@ -1,0 +1,27 @@
+{
+    "name": "etna/auth-service-provider",
+    "description": "Authenticator Service Provider",
+    "keywords": ["authenticator", "silex"],
+    "license": "ETNA",
+    "authors": [
+        {
+            "name": "ETNA",
+            "email": "dev@etna-alternance.net",
+            "homepage": "http://etna-alternance.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "silex/silex": "1.*@dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "ETNA\\Silex\\Provider\\Auth": "src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
