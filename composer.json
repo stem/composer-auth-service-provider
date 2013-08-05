@@ -14,6 +14,12 @@
         "php": ">=5.4",
         "silex/silex": "1.*@dev"
     },
+    "require-dev": {
+        "behat/behat": "2.x@stable"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
     "autoload": {
         "psr-0": {
             "ETNA\\Silex\\Provider\\Auth": "src"
