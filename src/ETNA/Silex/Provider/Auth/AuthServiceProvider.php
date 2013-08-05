@@ -21,7 +21,7 @@ class AuthServiceProvider implements ServiceProviderInterface
     {
         $this->app = $app;
 
-        foreach (["auth.authenticator_url", "auth.force_guest", "auth.cookie_expiration", "auth.tmpfile"] as $key) {
+        foreach (["auth.authenticator_url", "auth.force_guest", "auth.cookie_expiration", "auth.public_key.tmp_path"] as $key) {
             if (!isset($app[$key])) {
                 throw new \Exception("\$app['{$key}']: invalid key");
             }
@@ -160,7 +160,7 @@ class AuthServiceProvider implements ServiceProviderInterface
      */
     protected function getPublicKey()
     {
-        $file = $this->app["auth.tmpfile"];
+        $file = $this->app["auth.public_key.tmp_path"];
         if (!file_exists($file) || filemtime($file) < strtotime("-30seconds")) {
             $key = @file_get_contents("{$this->app["auth.authenticator_url"]}/public.key");
             
