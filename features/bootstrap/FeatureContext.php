@@ -10,8 +10,6 @@ use ETNA\Silex\Provider\Auth\AuthServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
-require_once "./src/ETNA/RSA.php";
-
 /**
  * Features context.
  */

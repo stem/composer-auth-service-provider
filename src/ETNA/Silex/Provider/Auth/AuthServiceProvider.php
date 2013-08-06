@@ -2,7 +2,7 @@
 
 namespace ETNA\Silex\Provider\Auth;
 
-use ETNA\RSA;
+use ETNA\RSA\RSA;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

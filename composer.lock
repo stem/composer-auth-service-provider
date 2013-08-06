@@ -3,8 +3,50 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "048fb29c3be45292ed1577143f2d40ef",
+    "hash": "9b38229940a33aa547e6a91774481c9d",
     "packages": [
+        {
+            "name": "etna/php-rsa",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "gitolite@scm.etna-alternance.eu:composer/php-rsa",
+                "reference": "0c07f62750243958f54762081b1c48f702ce4a6c"
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "behat/behat": "2.x@stable"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "ETNA\\RSA": "src"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "ETNA",
+                    "email": "dev@etna-alternance.net",
+                    "homepage": "http://etna-alternance.net"
+                }
+            ],
+            "description": "RSA Abstraction Class",
+            "keywords": [
+                "crypto",
+                "rsa"
+            ],
+            "time": "2013-08-06 12:33:06"
+        },
         {
             "name": "pimple/pimple",
             "version": "v1.0.2",
@@ -950,6 +992,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "silex/silex": 20,
+        "etna/php-rsa": 20,
         "behat/behat": 0
     },
     "platform": {

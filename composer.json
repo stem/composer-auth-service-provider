@@ -12,7 +12,8 @@
     ],
     "require": {
         "php": ">=5.4",
-        "silex/silex": "1.*@dev"
+        "silex/silex": "1.*@dev",
+        "etna/php-rsa": "dev-master"
     },
     "require-dev": {
         "behat/behat": "2.x@stable"
@@ -29,5 +30,11 @@
         "branch-alias": {
             "dev-master": "1.0-dev"
         }
-    }
+    },
+    "repositories": [
+       {
+           "type": "composer",
+           "url": "http://composer.etna-alternance.net"
+       }
+   ]
 }
