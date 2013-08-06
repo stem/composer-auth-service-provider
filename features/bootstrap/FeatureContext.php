@@ -10,6 +10,8 @@ use ETNA\Silex\Provider\Auth\AuthServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+require_once "./src/ETNA/RSA.php";
+
 /**
  * Features context.
  */
@@ -51,19 +53,26 @@ class FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^que j\'instancie un nouvel objet$/
+     * @BeforeScenario
      */
-    public function queJInstancieUnNouvelObjet()
+    public   function setupApplication()
     {
         $this->private  = openssl_pkey_get_private("file://" . __DIR__ . "/../../tmp/key/private.key");
         $this->private2 = openssl_pkey_get_private("file://" . __DIR__ . "/../../tmp/key2/private.key");
         $this->e        = null;
         $this->request  = new Request();
         $this->app      = new Silex\Application();
-        $this->app->register(new AuthServiceProvider());
         $this->app->get("/", function (Request $req) {
             return json_encode($req->user);
         });
+    }
+
+    /**
+     * @Given /^que j\'instancie un nouvel objet$/
+     */
+    public function queJInstancieUnNouvelObjet()
+    {
+        $this->app->register(new AuthServiceProvider());
     }
 
     /**
@@ -123,18 +132,6 @@ class FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^je ne suis pas authentifié$/
-     */
-    public function jeNeSuisPasAuthentifie()
-    {
-        $response = $this->app->handle($this->request, HttpKernelInterface::MASTER_REQUEST, true)->getContent();
-        $response = json_decode($response);
-        if ($response !== null) {
-            throw new Exception("\$req ne devrait pas avoir d'objet utilisateur");
-        }
-    }
-
-    /**
      * Generate / Sign Authenticator Cokkie
      */
     public function addAuthenticatorCookie($identity, $private_key)
@@ -174,29 +171,39 @@ class FeatureContext extends BehatContext
     }
 
     /**
+     * @Given /^je ne suis pas authentifié$/
+     */
+    public function jeSuisAuthentifie($user = false)
+    {
+        $response = $this->app->handle($this->request, HttpKernelInterface::MASTER_REQUEST, true)->getContent();
+        $response = json_decode($response);
+        if ($response !== null ^ $user) {
+            throw new Exception("\$req ne devrait pas avoir d'objet utilisateur");
+        }
+        if ($response === null ^ !$user) {
+            throw new Exception("\$req devrait avoir un objet utilisateur");
+        }
+        $this->user = $response;
+    }
+
+    /**
      * @Given /^je suis authentifié en tant que "([^"]*)" depuis "([^"]*)"$/
      */
     public function jeSuisAuthentifieEnTantQueDepuis($login, $login_date)
     {
-        $response = $this->app->handle($this->request, HttpKernelInterface::MASTER_REQUEST, true)->getContent();
-        $response = json_decode($response);
-        if ($response === null) {
-            throw new Exception("\$req devrait avoir d'objet utilisateur");
-        }
+        $this->jeSuisAuthentifie(true);
         
-        if ($login !== $response->login) {
+        if ($login !== $this->user->login) {
             throw new Exception("\$req->login devrait être '{$login}'");
         }
         
-        if ($login_date !== $response->login_date) {
+        if ($login_date !== $this->user->login_date) {
             throw new Exception("\$req->login_date devrait être '{$login_date}'");
         }
         
-        if (false !== $response->logas) {
+        if (false !== $this->user->logas) {
             throw new Exception("\$req->logas devrait être 'false'");
         }
-        
-        $this->user = $response;
     }
 
 
@@ -205,25 +212,19 @@ class FeatureContext extends BehatContext
      */
     public function jeSuisLogasEnTantQueDepuis($login, $login_date)
     {
-        $response = $this->app->handle($this->request, HttpKernelInterface::MASTER_REQUEST, true)->getContent();
-        $response = json_decode($response);
-        if ($response === null) {
-            throw new Exception("\$req devrait avoir d'objet utilisateur");
-        }
+        $this->jeSuisAuthentifie(true);
         
-        if ($login !== $response->login) {
+        if ($login !== $this->user->login) {
             throw new Exception("\$req->login devrait être '{$login}'");
         }
         
-        if ($login_date !== $response->login_date) {
+        if ($login_date !== $this->user->login_date) {
             throw new Exception("\$req->login_date devrait être '{$login_date}'");
         }
         
-        if (false === $response->logas) {
+        if (false === $this->user->logas) {
             throw new Exception("\$req->logas ne devrait pas être 'false'");
         }
-        
-        $this->user = $response;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace ETNA\Silex\Provider\Auth;
 
+use ETNA\RSA;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,30 +12,35 @@ use Exception;
 
 class AuthServiceProvider implements ServiceProviderInterface
 {
-    private $app    = null;
-    private $public = null;
+    private $app = null;
+    private $rsa = null;
     
     /**
      * Check configuration and load public key
      */
     public function boot(Application $app)
     {
-        $this->app = $app;
-
-        foreach (["auth.authenticator_url", "auth.force_guest", "auth.cookie_expiration", "auth.public_key.tmp_path"] as $key) {
-            if (!isset($app[$key])) {
+        switch (true) {
+            case ($key = "auth.authenticator_url"  ) && (!isset($app[$key]) || !\trim($app[$key])):
+            case ($key = "auth.public_key.tmp_path") && (!isset($app[$key]) || !\trim($app[$key])):
+            case ($key = "auth.force_guest"        ) && (!isset($app[$key])):
+            case ($key = "auth.cookie_expiration"  ) && (!isset($app[$key])):
                 throw new \Exception("\$app['{$key}']: invalid key");
-            }
+                break;
         }
+        
 
         $app["auth.authenticator_url"] = \trim($app["auth.authenticator_url"], "/");
 
-        $public_key  = openssl_pkey_get_public($this->getPublicKey());
-        if ($public_key === false) {
-            throw new \Exception("Bad Public Key");
+        $file = $app["auth.public_key.tmp_path"];
+        if (!file_exists($file) || filemtime($file) < strtotime("-30seconds")) {
+            $key = file_get_contents("{$app["auth.authenticator_url"]}/public.key");
+            
+            file_put_contents($file, $key);
         }
-        
-        $this->public  = $public_key;
+
+        $this->app = $app;
+        $this->rsa = RSA::loadPublicKey($file);
     }
 
     /**
@@ -42,9 +48,7 @@ class AuthServiceProvider implements ServiceProviderInterface
      */
     public function __destruct()
     {
-        if ($this->public !== null) {
-            openssl_free_key($this->public);
-        }
+        unset($this->rsa);
     }
 
     /**
@@ -123,7 +127,7 @@ class AuthServiceProvider implements ServiceProviderInterface
             throw new Exception("Cookie decode failed");
         }
 
-        if (!$this->verify($cookie->identity, $cookie->signature)) {
+        if (!$this->rsa->verify($cookie->identity, $cookie->signature)) {
             return $this->app["json"]("Cookie check fail", 401);
         }
 
@@ -137,37 +141,5 @@ class AuthServiceProvider implements ServiceProviderInterface
         }
 
         return $user;
-    }
-
-    /**
-     * Check Cookie Signature
-     *
-     * @param string $data
-     * @param string $signature base64encoded
-     * @return boolean true if signature matches
-     */
-    protected function verify($data, $signature)
-    {
-        return openssl_verify($data, base64_decode($signature), $this->public) == 1;
-    }
-
-    /**
-     * Get the public key from authenticator server or local cache
-     *
-     * Local cache the public key for 30 seconds.
-     *
-     * @return string
-     */
-    protected function getPublicKey()
-    {
-        $file = $this->app["auth.public_key.tmp_path"];
-        if (!file_exists($file) || filemtime($file) < strtotime("-30seconds")) {
-            $key = @file_get_contents("{$this->app["auth.authenticator_url"]}/public.key");
-            
-            @file_put_contents($file, $key);
-            return $key;
-        }
-        
-        return @file_get_contents($file);
     }
 }

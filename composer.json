@@ -2,7 +2,7 @@
     "name": "etna/auth-service-provider",
     "description": "Authenticator Service Provider",
     "keywords": ["authenticator", "silex"],
-    "license": "ETNA",
+    "license": "proprietary",
     "authors": [
         {
             "name": "ETNA",
