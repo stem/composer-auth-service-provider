@@ -96,7 +96,7 @@ class AuthServiceProvider implements ServiceProviderInterface
     public function authenticated(Request $req)
     {
         if ($req->user == null) {
-            throw new \Exception("Authentication required");
+            throw new \Exception("Authentication required", 401);
         }
     }
 
@@ -107,7 +107,7 @@ class AuthServiceProvider implements ServiceProviderInterface
     {
         return function (Request $req) use ($group) {
             if (!in_array($group, $req->user->groups)) {
-                throw new \Exception("Access Denied");
+                throw new \Exception("Access Denied", 403);
             }
         };
     }
@@ -120,24 +120,24 @@ class AuthServiceProvider implements ServiceProviderInterface
     {
         $cookie = base64_decode($cookie_string);
         if ($cookie == false) {
-            throw new Exception("Cookie decode failed");
+            throw new Exception("Cookie decode failed", 401);
         }
         $cookie = json_decode($cookie);
         if ($cookie == false) {
-            throw new Exception("Cookie decode failed");
+            throw new Exception("Cookie decode failed", 401);
         }
 
         if (!$this->rsa->verify($cookie->identity, $cookie->signature)) {
-            return $this->app["json"]("Cookie check fail", 401);
+            throw new Exception("Bad Cookie Signature", 401);
         }
 
         $user = base64_decode($cookie->identity);
         if ($user == false) {
-            throw new Exception("Identity decode failed");
+            throw new Exception("Identity decode failed", 401);
         }
         $user = json_decode($user);
         if ($user == false) {
-            throw new Exception("Identity decode failed");
+            throw new Exception("Identity decode failed", 401);
         }
 
         return $user;
