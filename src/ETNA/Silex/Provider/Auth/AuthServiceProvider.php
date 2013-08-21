@@ -106,6 +106,9 @@ class AuthServiceProvider implements ServiceProviderInterface
     public function userHasGroup($group)
     {
         return function (Request $req) use ($group) {
+            if (null === $req->user || null === $req->user->login_date) {
+                throw new \Exception("Access Denied", 403);
+            }
             if (!in_array($group, $req->user->groups)) {
                 throw new \Exception("Access Denied", 403);
             }
