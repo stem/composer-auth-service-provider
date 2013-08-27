@@ -15,32 +15,48 @@ class AuthServiceProvider implements ServiceProviderInterface
     private $app = null;
     private $rsa = null;
     
+    public function __construct(RSA $rsa = null)
+    {
+        $this->rsa = $rsa;
+    }
+    
+    public function setRSA(RSA $rsa)
+    {
+        $this->rsa = $rsa;
+    }
+    
     /**
      * Check configuration and load public key
      */
     public function boot(Application $app)
     {
         switch (true) {
-            case ($key = "auth.authenticator_url"  ) && (!isset($app[$key]) || !\trim($app[$key])):
-            case ($key = "auth.public_key.tmp_path") && (!isset($app[$key]) || !\trim($app[$key])):
             case ($key = "auth.force_guest"        ) && (!isset($app[$key])):
             case ($key = "auth.cookie_expiration"  ) && (!isset($app[$key])):
                 throw new \Exception("\$app['{$key}']: invalid key");
                 break;
         }
         
-
-        $app["auth.authenticator_url"] = \trim($app["auth.authenticator_url"], "/");
-
-        $file = $app["auth.public_key.tmp_path"];
-        if (!file_exists($file) || filemtime($file) < strtotime("-30seconds")) {
-            $key = file_get_contents("{$app["auth.authenticator_url"]}/public.key");
-            
-            file_put_contents($file, $key);
-        }
-
         $this->app = $app;
-        $this->rsa = RSA::loadPublicKey($file);
+
+        if ($this->rsa === null) {
+            switch (true) {
+                case ($key = "auth.authenticator_url"  ) && (!isset($app[$key]) || !\trim($app[$key])):
+                case ($key = "auth.public_key.tmp_path") && (!isset($app[$key]) || !\trim($app[$key])):
+                    throw new \Exception("\$app['{$key}']: invalid key");
+                    break;
+            }
+
+            $app["auth.authenticator_url"] = \trim($app["auth.authenticator_url"], "/");
+
+            $file = $app["auth.public_key.tmp_path"];
+            if (!file_exists($file) || filemtime($file) < strtotime("-30seconds")) {
+                $key = file_get_contents("{$app["auth.authenticator_url"]}/public.key");
+            
+                file_put_contents($file, $key);
+            }
+            $this->rsa = RSA::loadPublicKey($file);
+        }
     }
 
     /**
@@ -60,6 +76,7 @@ class AuthServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $app->before([$this, "addUserToRequest"]);
+        $app["auth"] = $this;
 
         $app["auth.authenticated"] = [$this, "authenticated"];
         $app["auth.secure"]        = [$this, "userHasGroup"];
@@ -117,9 +134,33 @@ class AuthServiceProvider implements ServiceProviderInterface
 
 
     /**
+     * Generate a new cookie with the identity $identity
+     *
+     * @param array $identity
+     * @return string
+     */
+    public function generate($identity)
+    {
+        $cookie    = base64_encode(json_encode($identity));
+        $signature = $this->rsa->sign($cookie);
+
+        if ($signature === null) {
+            throw new \Exception("Error signing cookie");
+        }
+
+        $cookie = base64_encode(json_encode([
+            "identity"  => $cookie,
+            "signature" => $signature,
+        ]));
+        
+        return $cookie;
+    }
+
+
+    /**
      * Extract cookie information
      */
-    protected function extract($cookie_string)
+    public function extract($cookie_string)
     {
         $cookie = base64_decode($cookie_string);
         if ($cookie == false) {
