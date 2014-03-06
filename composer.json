@@ -34,7 +34,7 @@
     "repositories": [
        {
            "type": "composer",
-           "url": "http://composer.etna-alternance.net"
+           "url": "http://blu-composer.herokuapp.com"
        }
    ]
 }
