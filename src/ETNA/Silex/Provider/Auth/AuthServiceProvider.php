@@ -75,7 +75,7 @@ class AuthServiceProvider implements ServiceProviderInterface
      */
     public function register(Application $app)
     {
-        $app->before([$this, "addUserToRequest"]);
+        $app->before([$this, "addUserToRequest"], Application::EARLY_EVENT);
         $app["auth"] = $this;
 
         $app["auth.authenticated"] = [$this, "authenticated"];
