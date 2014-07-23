@@ -1,0 +1,19 @@
+image: bradrydzewski/php:5.5
+env:
+  - APPLICATION_ENV=drone
+  - RABBITMQ_VHOST="/test-behat"
+script:
+  - mkdir -p tmp/keys
+  - openssl genrsa  -out tmp/keys/private.key 2048
+  - openssl rsa -in tmp/keys/private.key -pubout -out tmp/keys/public.key
+  - composer install --dev --prefer-source
+  - bin/behat -f progress
+notify:
+  slack:
+    team : {{slackTeam}}
+    channel: {{slackChannel}}
+    username: drone
+    token: {{slackToken}}
+    on_started: true
+    on_failure: true
+    on_success: true
