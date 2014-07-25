@@ -1,4 +1,4 @@
-image: bradrydzewski/php:5.5
+image: etna/drone-php
 env:
   - APPLICATION_ENV=drone
   - RABBITMQ_VHOST="/test-behat"
