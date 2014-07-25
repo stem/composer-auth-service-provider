@@ -12,8 +12,8 @@
     ],
     "require": {
         "php": ">=5.4",
-        "silex/silex": "1.*@dev",
-        "etna/php-rsa": "dev-master"
+        "silex/silex": "1.x",
+        "etna/php-rsa": "0.x"
     },
     "require-dev": {
         "behat/behat": "2.x@stable"
