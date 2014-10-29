@@ -1,11 +1,11 @@
-#behat.yml
+# behat.yml
 default:
-    formatter:
-        name:                  progress
-        parameters:
-            decorated:         true
-            verbose:           false
-            time:              true
-            language:          fr
-            output_path:       null
-            multiline_auth:    true
+    autoload:
+        "": tests/bootstrap
+
+    suites:
+        default:
+            paths:
+                - tests/features
+    formatters:
+        progress: true
