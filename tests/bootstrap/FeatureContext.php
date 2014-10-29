@@ -1,7 +1,7 @@
 <?php
 
-use Behat\Behat\Context\BehatContext;
 use Behat\Behat\Context\ClosuredContextInterface;
+use Behat\Behat\Context\Context;
 use Behat\Behat\Context\TranslatedContextInterface;
 use Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
@@ -13,19 +13,8 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * Features context.
  */
-class FeatureContext extends BehatContext
+class FeatureContext implements Context
 {
-    /**
-     * Initializes context.
-     * Every scenario gets it's own context object.
-     *
-     * @param array $parameters context parameters (set them up through behat.yml)
-     */
-    public function __construct(array $parameters)
-    {
-        // Initialize your context here
-    }
-
     /**
      * @BeforeSuite
      */
@@ -138,7 +127,7 @@ class FeatureContext extends BehatContext
         if ($identity === null && json_last_error()) {
             throw new Exception("JSON decode error");
         }
-        
+
         if (!openssl_sign(base64_encode(json_encode($identity)), $signature, $private_key)) {
             throw new \Exception("Error signing cookie");
         }
@@ -147,7 +136,7 @@ class FeatureContext extends BehatContext
             "identity"  => base64_encode(json_encode($identity)),
             "signature" => base64_encode($signature),
         ];
-        
+
         $this->request->cookies->set("authenticator", base64_encode(json_encode($identity)));
     }
 
@@ -190,15 +179,15 @@ class FeatureContext extends BehatContext
     public function jeSuisAuthentifieEnTantQueDepuis($login, $login_date)
     {
         $this->jeSuisAuthentifie(true);
-        
+
         if ($login !== $this->user->login) {
             throw new Exception("\$req->login devrait être '{$login}'");
         }
-        
+
         if ($login_date !== $this->user->login_date) {
             throw new Exception("\$req->login_date devrait être '{$login_date}'");
         }
-        
+
         if (false !== $this->user->logas) {
             throw new Exception("\$req->logas devrait être 'false'");
         }
@@ -211,15 +200,15 @@ class FeatureContext extends BehatContext
     public function jeSuisLogasEnTantQueDepuis($login, $login_date)
     {
         $this->jeSuisAuthentifie(true);
-        
+
         if ($login !== $this->user->login) {
             throw new Exception("\$req->login devrait être '{$login}'");
         }
-        
+
         if ($login_date !== $this->user->login_date) {
             throw new Exception("\$req->login_date devrait être '{$login_date}'");
         }
-        
+
         if (false === $this->user->logas) {
             throw new Exception("\$req->logas ne devrait pas être 'false'");
         }
@@ -233,7 +222,7 @@ class FeatureContext extends BehatContext
         if ($login !== $this->user->logas->login) {
             throw new Exception("\$req->logas->login devrait être '{$login}'");
         }
-        
+
         if ($login_date !== $this->user->logas->login_date) {
             throw new Exception("\$req->logas->login_date devrait être '{$login_date}'");
         }
