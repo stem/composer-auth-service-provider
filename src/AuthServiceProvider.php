@@ -14,17 +14,17 @@ class AuthServiceProvider implements ServiceProviderInterface
 {
     private $app = null;
     private $rsa = null;
-    
+
     public function __construct(RSA $rsa = null)
     {
         $this->rsa = $rsa;
     }
-    
+
     public function setRSA(RSA $rsa)
     {
         $this->rsa = $rsa;
     }
-    
+
     /**
      * Check configuration and load public key
      */
@@ -36,7 +36,7 @@ class AuthServiceProvider implements ServiceProviderInterface
                 throw new \Exception("\$app['{$key}']: invalid key");
                 break;
         }
-        
+
         $this->app = $app;
 
         if ($this->rsa === null) {
@@ -52,10 +52,10 @@ class AuthServiceProvider implements ServiceProviderInterface
             $file = $app["auth.public_key.tmp_path"];
             if (!file_exists($file) || filemtime($file) < strtotime("-30seconds")) {
                 $key = file_get_contents("{$app["auth.authenticator_url"]}/public.key");
-            
+
                 file_put_contents($file, $key);
             }
-            $this->rsa = RSA::loadPublicKey($file);
+            $this->rsa = RSA::loadPublicKey("file://" . $file);
         }
     }
 
@@ -81,7 +81,7 @@ class AuthServiceProvider implements ServiceProviderInterface
         $app["auth.authenticated"] = [$this, "authenticated"];
         $app["auth.secure"]        = [$this, "userHasGroup"];
     }
-    
+
     /**
      * Add a user object to the current request
      */
@@ -97,7 +97,7 @@ class AuthServiceProvider implements ServiceProviderInterface
             }
 
             // La conf me demande de forcer le guest
-            
+
             if (!isset($req->user->login_date) || ($this->app["auth.force_guest"] && $req->user->login_date == null)) {
                 $req->user = null;
             }
@@ -152,7 +152,7 @@ class AuthServiceProvider implements ServiceProviderInterface
             "identity"  => $cookie,
             "signature" => $signature,
         ]));
-        
+
         return $cookie;
     }
 
