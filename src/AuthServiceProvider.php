@@ -4,13 +4,17 @@ namespace ETNA\Silex\Provider\Auth;
 
 use ETNA\RSA\RSA;
 use Silex\Application;
+use Silex\Api\BootableProviderInterface;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ParameterBag;
-use Silex\ServiceProviderInterface;
+use Pimple\ServiceProviderInterface;
+use Pimple\Container;
+
 use Exception;
 
-class AuthServiceProvider implements ServiceProviderInterface
+class AuthServiceProvider implements ServiceProviderInterface, BootableProviderInterface
 {
     private $app = null;
     private $rsa = null;
@@ -73,7 +77,7 @@ class AuthServiceProvider implements ServiceProviderInterface
      * $app["user.authenticated"]     => user must be authenticated to run the action
      * $app["user.in.group"]($groups) => user must have all defined groups to run the action
      */
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $app->before([$this, "addUserToRequest"], Application::EARLY_EVENT);
         $app["auth"] = $this;
