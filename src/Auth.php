@@ -9,7 +9,7 @@ use Pimple\Container;
 
 use Symfony\Component\HttpFoundation\Request;
 
-class Auth implements ServiceProviderInterface, , BootableProviderInterface
+class Auth implements ServiceProviderInterface, BootableProviderInterface
 {
     private $auth_config;
     private $app;
