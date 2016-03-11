@@ -6,10 +6,9 @@ Fonctionnalité: Vérification du cookie
 
 Contexte:
   Etant donné que j'instancie un nouvel objet
-  Et j'injecte "file://__DIR__/tmp/key/" dans "auth.authenticator_url"
-  Et j'injecte true dans "auth.force_guest"
-  Et j'injecte false dans "auth.cookie_expiration"
-  Et j'injecte "__DIR__/tmp/public.key" dans "auth.public_key.tmp_path"
+  Et j'injecte "file://__DIR__/tmp/key/" dans "authenticator.url"
+  Et j'injecte "30seconds" dans "auth.cookie_expiration"
+  Et j'injecte "__DIR__/tmp/public.key" dans "authenticator.cache.file"
   Quand Silex boot mon provider
 
 Scénario: Vérification pour un guest
@@ -17,7 +16,7 @@ Scénario: Vérification pour un guest
 
 
 Scénario: Vérification pour un mec qui ne connait pas son mot de passe
-  Et mon identité est 
+  Et mon identité est
   """
   {
     "login": "crivis_s",
@@ -31,7 +30,7 @@ Scénario: Vérification pour un mec qui ne connait pas son mot de passe
 
 Scénario: Vérification pour un mec qui ne connait pas son mot de passe
   Et j'injecte false dans "auth.force_guest"
-  Et mon identité est 
+  Et mon identité est
   """
   {
     "login": "crivis_s",
@@ -44,7 +43,7 @@ Scénario: Vérification pour un mec qui ne connait pas son mot de passe
 
 
 Scénario: Vérification pour un mec qui tente d'autosigner
-  Et ma fausse identité est 
+  Et ma fausse identité est
   """
   {
     "login": "crivis_s",
@@ -56,8 +55,8 @@ Scénario: Vérification pour un mec qui tente d'autosigner
   Alors je ne suis pas authentifié
 
 
-Scénario: Vérification pour un mec authentifié
-  Et mon identité est 
+Scénario: Vérification pour un mec authentifié depuis trop longtemps
+  Et mon identité est
   """
   {
     "login":  "crivis_s",
@@ -66,12 +65,11 @@ Scénario: Vérification pour un mec authentifié
     "login_date":"2013-08-01 14:18:55"
   }
   """
-  Alors je suis authentifié en tant que "crivis_s" depuis "2013-08-01 14:18:55"
-  Et j'ai les roles "prof,adm,auth_adm"
+  Alors je ne suis pas authentifié
 
 
 Scénario: Vérification pour un mec logas
-  Et mon identité est 
+  Et mon identité est
   """
   {
     "login":  "lequer_r",
